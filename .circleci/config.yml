@@ -1,39 +1,30 @@
 version: 2.1
 
 jobs:
-  build:
+  sonar_scan:
     docker:
-      - image: cimg/node:22.15
+      - image: sonarsource/sonar-scanner-cli:latest
     working_directory: ~/repo
     steps:
-      # Step 1: Checkout code
       - checkout
 
-      # Step 2: Install dependencies
+      # Install dependencies
       - run:
           name: Install Dependencies
           command: npm ci
 
-      # Step 3: Run unit tests
+      # Run unit tests
       - run:
           name: Run Tests
           command: |
             echo "Running unit tests..."
             npm test || echo "⚠️ No tests found, skipping."
 
-      # Step 4: Run security audit (optional)
-      - run:
-          name: Run Security Audit (npm audit)
-          command: |
-            echo "🔍 Running npm audit for vulnerabilities..."
-            npm audit --audit-level=high || true
-
-      # Step 5: Run SonarQube analysis using local/npx SonarScanner
+      # Run SonarQube analysis
       - run:
           name: Run SonarQube Analysis
           command: |
-            echo "🚀 Running SonarQube analysis..."
-            npx sonar-scanner \
+            sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.projectName="Backend Secure Payments API" \
               -Dsonar.sources=. \
@@ -45,5 +36,5 @@ workflows:
   version: 2
   build_and_scan:
     jobs:
-      - build
+      - sonar_scan
 
