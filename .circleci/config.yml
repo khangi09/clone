@@ -4,25 +4,36 @@ jobs:
   build:
     docker:
       - image: cimg/node:22.15
+    working_directory: ~/repo
     steps:
+      # 1️⃣ Checkout your code
       - checkout
 
+      # 2️⃣ Install Node dependencies
       - run:
-          name: Install Dependencies
+          name: Install dependencies
           command: npm ci
 
+      # 3️⃣ Run unit tests (skip if none)
       - run:
-          name: Run Tests
+          name: Run tests
           command: npm test || echo "No tests found"
 
+      # 4️⃣ Download and setup SonarScanner CLI (Linux)
       - run:
-          name: Install SonarScanner npm package
-          command: npm install sonar-scanner --save-dev
-
-      - run:
-          name: Run SonarCloud Analysis
+          name: Setup SonarScanner CLI
           command: |
-            npx sonar-scanner \
+            curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.1.69571-linux.zip
+            unzip sonar-scanner.zip
+            chmod +x sonar-scanner-4.9.1.69571-linux/bin/sonar-scanner
+            export PATH=$PWD/sonar-scanner-4.9.1.69571-linux/bin:$PATH
+            sonar-scanner -v
+
+      # 5️⃣ Run SonarCloud analysis
+      - run:
+          name: SonarCloud Analysis
+          command: |
+            sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.organization=khangi09 \
               -Dsonar.sources=. \
