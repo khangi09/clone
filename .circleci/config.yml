@@ -6,18 +6,21 @@ jobs:
       - image: cimg/node:22.15
     steps:
       - checkout
+
       - run:
           name: Install Dependencies
           command: npm ci
+
       - run:
           name: Run Tests
           command: npm test || echo "No tests found"
+
       - run:
           name: Run SonarCloud Analysis
           command: |
-            sonar-scanner \
+            npx sonar-scanner \
               -Dsonar.projectKey=backend \
-              -Dsonar.organization=<your-org> \
+              -Dsonar.organization=khangi09 \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN
