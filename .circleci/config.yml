@@ -16,19 +16,18 @@ jobs:
           command: npm test || echo "No tests found"
 
       - run:
-          name: 🚀 Download and Run SonarCloud Scanner
+          name: Install SonarScanner npm package
+          command: npm install sonar-scanner --save-dev
+
+      - run:
+          name: Run SonarCloud Analysis
           command: |
-            echo "Downloading SonarScanner CLI..."
-            curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-6.2.1.4610-linux-x64.zip
-            unzip sonar-scanner.zip
-            export PATH=$PWD/sonar-scanner-6.2.1.4610-linux-x64/bin:$PATH
-            chmod +x sonar-scanner-6.2.1.4610-linux-x64/bin/sonar-scanner
-            sonar-scanner \
+            npx sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.organization=khangi09 \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=squ_2f16ab24463726f6a5ff7d1115fcbdd50df0dc4d
+              -Dsonar.login=$SONAR_TOKEN
 
 workflows:
   version: 2
