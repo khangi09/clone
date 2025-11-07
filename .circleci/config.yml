@@ -28,15 +28,16 @@ jobs:
             npm audit --audit-level=high || true
 
       # Download and setup SonarScanner CLI
-      - run:
-          name: Install SonarScanner CLI
-          command: |
-            echo "Downloading SonarScanner CLI..."
-            curl -L -o sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.1.69571-linux.zip
-            unzip sonar-scanner-cli.zip
-            export PATH=$PWD/sonar-scanner-4.9.1.69571-linux/bin:$PATH
-            chmod +x sonar-scanner-4.9.1.69571-linux/bin/sonar-scanner
-            sonar-scanner -v
+    - run:
+    name: Install SonarScanner CLI
+    command: |
+      echo "Downloading SonarScanner CLI..."
+      curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+      unzip sonar-scanner.zip
+      export PATH=$PWD/sonar-scanner-4.6.2.2472-linux/bin:$PATH
+      chmod +x sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner
+      sonar-scanner -v
+
 
       # Run SonarQube analysis
       - run:
