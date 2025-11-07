@@ -27,10 +27,13 @@ jobs:
             echo "🔍 Running npm audit for dependency vulnerabilities..."
             npm audit --audit-level=high || true
 
-      # Install SonarScanner
+      # Install SonarScanner CLI (Linux)
       - run:
-          name: Install SonarScanner
-          command: npm install -g sonar-scanner
+          name: Install SonarScanner CLI
+          command: |
+            curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.1.69571-linux.zip
+            unzip sonar-scanner.zip
+            export PATH=$PWD/sonar-scanner-4.9.1.69571-linux/bin:$PATH
 
       # Run SonarQube Static Code Analysis (SAST)
       - run:
@@ -43,7 +46,7 @@ jobs:
               -Dsonar.sources=. \
               -Dsonar.exclusions=node_modules/**,**/*.test.js,**/tests/** \
               -Dsonar.host.url=http://localhost:9000 \
-              -Dsonar.token=$SONAR_TOKEN
+              -Dsonar.login=$SONAR_TOKEN
 
 workflows:
   version: 2
