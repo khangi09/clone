@@ -6,33 +6,26 @@ jobs:
       - image: cimg/node:22.15
     steps:
       - checkout
-
       - run:
           name: Install Dependencies
           command: npm ci
-
-      - run:
-          name: Run Tests
-          command: npm test || echo "No tests found"
-
-      # ✅ Fix: install sonar-scanner locally and ensure it's executable
       - run:
           name: Install SonarScanner
           command: |
-            echo "Installing SonarScanner..."
             npm install sonar-scanner --save-dev
             chmod +x ./node_modules/sonar-scanner/bin/sonar-scanner
-
       - run:
-          name: Run SonarCloud Analysis
+          name: Run Tests
+          command: npm test || echo "No tests found"
+      - run:
+          name: 🚀 Run SonarCloud Analysis
           command: |
-            echo "🚀 Running SonarCloud Analysis..."
             ./node_modules/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.organization=khangi09 \
               -Dsonar.sources=. \
               -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=$SONAR_TOKEN
+              -Dsonar.login=squ_2f16ab24463726f6a5ff7d1115fcbdd50df0dc4d
 
 workflows:
   version: 2
