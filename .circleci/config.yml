@@ -15,10 +15,19 @@ jobs:
           name: Run Tests
           command: npm test || echo "No tests found"
 
+      # ✅ Fix: install sonar-scanner locally and ensure it's executable
+      - run:
+          name: Install SonarScanner
+          command: |
+            echo "Installing SonarScanner..."
+            npm install sonar-scanner --save-dev
+            chmod +x ./node_modules/sonar-scanner/bin/sonar-scanner
+
       - run:
           name: Run SonarCloud Analysis
           command: |
-            npx sonar-scanner \
+            echo "🚀 Running SonarCloud Analysis..."
+            ./node_modules/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.organization=khangi09 \
               -Dsonar.sources=. \
