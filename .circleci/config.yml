@@ -1,40 +1,30 @@
 version: 2.1
 
 jobs:
-  sonar_scan:
+  build:
     docker:
-      - image: sonarsource/sonar-scanner-cli:latest
-    working_directory: ~/repo
+      - image: cimg/node:22.15
     steps:
       - checkout
-
-      # Install dependencies
       - run:
           name: Install Dependencies
           command: npm ci
-
-      # Run unit tests
       - run:
           name: Run Tests
-          command: |
-            echo "Running unit tests..."
-            npm test || echo "⚠️ No tests found, skipping."
-
-      # Run SonarQube analysis
+          command: npm test || echo "No tests found"
       - run:
-          name: Run SonarQube Analysis
+          name: Run SonarCloud Analysis
           command: |
             sonar-scanner \
               -Dsonar.projectKey=backend \
-              -Dsonar.projectName="Backend Secure Payments API" \
+              -Dsonar.organization=<your-org> \
               -Dsonar.sources=. \
-              -Dsonar.exclusions=node_modules/**,**/*.test.js,**/tests/** \
-              -Dsonar.host.url=http://localhost:9000 \
+              -Dsonar.host.url=https://sonarcloud.io \
               -Dsonar.login=$SONAR_TOKEN
 
 workflows:
   version: 2
   build_and_scan:
     jobs:
-      - sonar_scan
+      - build
 
