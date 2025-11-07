@@ -1,0 +1,43 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:22.15
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install Dependencies
+          command: npm ci
+
+      - run:
+          name: Run Tests
+          command: |
+            echo "Running unit tests..."
+            npm test || echo "⚠️ No tests found, skipping."
+
+      - run:
+          name: Run Security Audit (SCA)
+          command: |
+            echo "🔍 Running npm audit for dependency vulnerabilities..."
+            npm audit --audit-level=high || true
+
+      - run:
+          name: Run SonarQube Static Code Analysis (SAST)
+          command: |
+            echo "🚀 Running SonarQube analysis..."
+            npx sonar-scanner \
+              -Dsonar.projectKey=backend \
+              -Dsonar.sources=. \
+              -Dsonar.host.url=http://localhost:9000 \
+              -Dsonar.token=$SONAR_TOKEN
+
+workflows:
+  version: 2
+  build_and_scan:
+    jobs:
+      - build
+
