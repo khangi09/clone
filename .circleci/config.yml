@@ -8,38 +8,39 @@ jobs:
     steps:
       - checkout
 
-      # Install dependencies
+      # Install project dependencies
       - run:
           name: Install Dependencies
           command: npm ci
 
-      # Run unit tests
+      # Run unit tests (skip if none)
       - run:
-          name: Run Tests
+          name: Run Unit Tests
           command: |
             echo "Running unit tests..."
             npm test || echo "⚠️ No tests found, skipping."
 
-      # Run Security Audit (SCA)
+      # Run security audit for high-severity vulnerabilities
       - run:
-          name: Run Security Audit (npm audit)
+          name: Security Audit
           command: |
-            echo "🔍 Running npm audit for dependency vulnerabilities..."
+            echo "🔍 Running npm audit..."
             npm audit --audit-level=high || true
 
-      # Install SonarScanner npm package locally
+      # Install SonarScanner locally and make executable
       - run:
           name: Install SonarScanner
           command: |
-            echo "Installing SonarScanner via npm..."
+            echo "Installing SonarScanner locally..."
             npm install sonar-scanner --save-dev
+            chmod +x ./node_modules/sonar-scanner/bin/sonar-scanner
 
-      # Run SonarQube Static Code Analysis (SAST)
+      # Run SonarQube analysis
       - run:
           name: Run SonarQube Analysis
           command: |
             echo "🚀 Running SonarQube analysis..."
-            npx sonar-scanner \
+            ./node_modules/sonar-scanner/bin/sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.projectName="Backend Secure Payments API" \
               -Dsonar.sources=. \
