@@ -19,10 +19,10 @@ jobs:
           name: 🚀 Download and Run SonarCloud Scanner
           command: |
             echo "Downloading SonarScanner CLI..."
-            curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-6.2.1.4610-linux.zip
+            curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-6.2.1.4610-linux-x64.zip
             unzip sonar-scanner.zip
-            export PATH=$PWD/sonar-scanner-6.2.1.4610-linux/bin:$PATH
-            chmod +x sonar-scanner-6.2.1.4610-linux/bin/sonar-scanner
+            export PATH=$PWD/sonar-scanner-6.2.1.4610-linux-x64/bin:$PATH
+            chmod +x sonar-scanner-6.2.1.4610-linux-x64/bin/sonar-scanner
             sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.organization=khangi09 \
