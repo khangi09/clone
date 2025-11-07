@@ -6,45 +6,34 @@ jobs:
       - image: cimg/node:22.15
     working_directory: ~/repo
     steps:
+      # Step 1: Checkout code
       - checkout
 
-      # Install project dependencies
+      # Step 2: Install dependencies
       - run:
           name: Install Dependencies
           command: npm ci
 
-      # Run unit tests (skip if none)
+      # Step 3: Run unit tests
       - run:
-          name: Run Unit Tests
+          name: Run Tests
           command: |
             echo "Running unit tests..."
             npm test || echo "⚠️ No tests found, skipping."
 
-      # Run security audit for high-severity vulnerabilities
+      # Step 4: Run security audit (optional)
       - run:
-          name: Security Audit
+          name: Run Security Audit (npm audit)
           command: |
-            echo "🔍 Running npm audit..."
+            echo "🔍 Running npm audit for vulnerabilities..."
             npm audit --audit-level=high || true
 
-      # Download and setup SonarScanner CLI
-    - run:
-    name: Install SonarScanner CLI
-    command: |
-      echo "Downloading SonarScanner CLI..."
-      curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-      unzip sonar-scanner.zip
-      export PATH=$PWD/sonar-scanner-4.6.2.2472-linux/bin:$PATH
-      chmod +x sonar-scanner-4.6.2.2472-linux/bin/sonar-scanner
-      sonar-scanner -v
-
-
-      # Run SonarQube analysis
+      # Step 5: Run SonarQube analysis using local/npx SonarScanner
       - run:
           name: Run SonarQube Analysis
           command: |
             echo "🚀 Running SonarQube analysis..."
-            sonar-scanner \
+            npx sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.projectName="Backend Secure Payments API" \
               -Dsonar.sources=. \
@@ -57,3 +46,4 @@ workflows:
   build_and_scan:
     jobs:
       - build
+
