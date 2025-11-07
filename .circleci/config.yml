@@ -29,11 +29,13 @@ jobs:
 
       # Install SonarScanner CLI (Linux)
       - run:
-          name: Install SonarScanner CLI
+          name: Install SonarScanner
           command: |
+            echo "Downloading SonarScanner CLI..."
             curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.1.69571-linux.zip
             unzip sonar-scanner.zip
             export PATH=$PWD/sonar-scanner-4.9.1.69571-linux/bin:$PATH
+            sonar-scanner -v
 
       # Run SonarQube Static Code Analysis (SAST)
       - run:
