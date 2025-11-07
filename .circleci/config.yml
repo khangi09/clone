@@ -5,43 +5,43 @@ jobs:
     docker:
       - image: cimg/node:22.15
     working_directory: ~/repo
-
     steps:
       - checkout
 
+      # Install dependencies
       - run:
           name: Install Dependencies
           command: npm ci
 
+      # Run unit tests
       - run:
           name: Run Tests
           command: |
             echo "Running unit tests..."
             npm test || echo "⚠️ No tests found, skipping."
 
+      # Run Security Audit (SCA)
       - run:
-          name: Run Security Audit (SCA)
+          name: Run Security Audit (npm audit)
           command: |
             echo "🔍 Running npm audit for dependency vulnerabilities..."
             npm audit --audit-level=high || true
 
+      # Install SonarScanner
       - run:
           name: Install SonarScanner
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y unzip curl
-            curl -Lo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.3.5686-linux.zip
-            unzip sonar-scanner.zip
-            chmod +x sonar-scanner-4.9.3.5686-linux/bin/sonar-scanner
-            export PATH=$PATH:$(pwd)/sonar-scanner-4.9.3.5686-linux/bin
+          command: npm install -g sonar-scanner
 
+      # Run SonarQube Static Code Analysis (SAST)
       - run:
-          name: Run SonarQube Static Code Analysis (SAST)
+          name: Run SonarQube Analysis
           command: |
             echo "🚀 Running SonarQube analysis..."
             sonar-scanner \
               -Dsonar.projectKey=backend \
+              -Dsonar.projectName="Backend Secure Payments API" \
               -Dsonar.sources=. \
+              -Dsonar.exclusions=node_modules/**,**/*.test.js,**/tests/** \
               -Dsonar.host.url=http://localhost:9000 \
               -Dsonar.token=$SONAR_TOKEN
 
