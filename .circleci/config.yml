@@ -1,8 +1,13 @@
-version: 2.1
+version: 2.1 # Note: Orbs require version 2.1
+
+# 1️⃣ Define the Orb
+orbs:
+  sonarcloud: sonarsource/sonarcloud@3.0.1 # Always check for the latest version
 
 jobs:
   build:
     docker:
+      # Use a standard Docker image for your application build
       - image: cimg/node:22.15
     working_directory: ~/repo
     steps:
@@ -15,30 +20,20 @@ jobs:
           command: npm ci
 
       # 3️⃣ Run unit tests (skip if none)
+      # Ensure your tests generate a report (e.g., using Jest with coverage reporter)
       - run:
           name: Run tests
           command: npm test || echo "No tests found"
 
-      # 4️⃣ Download and setup SonarScanner CLI (Linux)
-      - run:
-          name: Setup SonarScanner CLI
-          command: |
-            curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.1.69571-linux.zip
-            unzip sonar-scanner.zip
-            chmod +x sonar-scanner-4.9.1.69571-linux/bin/sonar-scanner
-            export PATH=$PWD/sonar-scanner-4.9.1.69571-linux/bin:$PATH
-            sonar-scanner -v
-
-      # 5️⃣ Run SonarCloud analysis
-      - run:
-          name: SonarCloud Analysis
-          command: |
-            sonar-scanner \
-              -Dsonar.projectKey=backend \
-              -Dsonar.organization=khangi09 \
-              -Dsonar.sources=. \
-              -Dsonar.host.url=https://sonarcloud.io \
-              -Dsonar.login=$SONAR_TOKEN
+      # 4️⃣ Run SonarCloud analysis using the Orb
+      # This step replaces your old 'Setup SonarScanner CLI' and 'Run SonarCloud analysis' steps.
+      - sonarcloud/scan:
+          # These parameters correspond to the ones you had in your original command:
+          project_key: backend 
+          organization: khangi09 # Your SonarCloud organization
+          # sonar_token_variable_name defaults to SONAR_TOKEN, which is recommended.
+          # Host URL defaults to https://sonarcloud.io, so you don't need to specify it.
+          # Note: Ensure SONAR_TOKEN is set as a secure Environment Variable in your CircleCI project.
 
 workflows:
   version: 2
