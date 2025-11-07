@@ -6,21 +6,24 @@ jobs:
       - image: cimg/node:22.15
     steps:
       - checkout
+
       - run:
           name: Install Dependencies
           command: npm ci
-      - run:
-          name: Install SonarScanner
-          command: |
-            npm install sonar-scanner --save-dev
-            chmod +x ./node_modules/sonar-scanner/bin/sonar-scanner
+
       - run:
           name: Run Tests
           command: npm test || echo "No tests found"
+
       - run:
-          name: 🚀 Run SonarCloud Analysis
+          name: 🚀 Download and Run SonarCloud Scanner
           command: |
-            ./node_modules/sonar-scanner/bin/sonar-scanner \
+            echo "Downloading SonarScanner CLI..."
+            curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-6.2.1.4610-linux.zip
+            unzip sonar-scanner.zip
+            export PATH=$PWD/sonar-scanner-6.2.1.4610-linux/bin:$PATH
+            chmod +x sonar-scanner-6.2.1.4610-linux/bin/sonar-scanner
+            sonar-scanner \
               -Dsonar.projectKey=backend \
               -Dsonar.organization=khangi09 \
               -Dsonar.sources=. \
@@ -32,4 +35,3 @@ workflows:
   build_and_scan:
     jobs:
       - build
-
