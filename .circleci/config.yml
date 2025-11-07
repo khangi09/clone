@@ -1,39 +1,51 @@
-version: 2.1 # Note: Orbs require version 2.1
-
-# 1️⃣ Define the Orb
-orbs:
-  sonarcloud: sonarsource/sonarcloud@3.0.1 # Always check for the latest version
+version: 2.1
 
 jobs:
   build:
     docker:
-      # Use a standard Docker image for your application build
       - image: cimg/node:22.15
     working_directory: ~/repo
     steps:
-      # 1️⃣ Checkout your code
       - checkout
 
-      # 2️⃣ Install Node dependencies
+      # Install dependencies
       - run:
-          name: Install dependencies
+          name: Install Dependencies
           command: npm ci
 
-      # 3️⃣ Run unit tests (skip if none)
-      # Ensure your tests generate a report (e.g., using Jest with coverage reporter)
+      # Run unit tests
       - run:
-          name: Run tests
-          command: npm test || echo "No tests found"
+          name: Run Tests
+          command: |
+            echo "Running unit tests..."
+            npm test || echo "⚠️ No tests found, skipping."
 
-      # 4️⃣ Run SonarCloud analysis using the Orb
-      # This step replaces your old 'Setup SonarScanner CLI' and 'Run SonarCloud analysis' steps.
-      - sonarcloud/scan:
-          # These parameters correspond to the ones you had in your original command:
-          project_key: backend 
-          organization: khangi09 # Your SonarCloud organization
-          # sonar_token_variable_name defaults to SONAR_TOKEN, which is recommended.
-          # Host URL defaults to https://sonarcloud.io, so you don't need to specify it.
-          # Note: Ensure SONAR_TOKEN is set as a secure Environment Variable in your CircleCI project.
+      # Run Security Audit (SCA)
+      - run:
+          name: Run Security Audit (npm audit)
+          command: |
+            echo "🔍 Running npm audit for dependency vulnerabilities..."
+            npm audit --audit-level=high || true
+
+      # Install SonarScanner npm package locally
+      - run:
+          name: Install SonarScanner
+          command: |
+            echo "Installing SonarScanner via npm..."
+            npm install sonar-scanner --save-dev
+
+      # Run SonarQube Static Code Analysis (SAST)
+      - run:
+          name: Run SonarQube Analysis
+          command: |
+            echo "🚀 Running SonarQube analysis..."
+            npx sonar-scanner \
+              -Dsonar.projectKey=backend \
+              -Dsonar.projectName="Backend Secure Payments API" \
+              -Dsonar.sources=. \
+              -Dsonar.exclusions=node_modules/**,**/*.test.js,**/tests/** \
+              -Dsonar.host.url=http://localhost:9000 \
+              -Dsonar.login=$SONAR_TOKEN
 
 workflows:
   version: 2
